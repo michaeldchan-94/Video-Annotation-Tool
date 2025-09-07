@@ -22,16 +22,16 @@ class AnnotationValidator:
         self.normal_keyboard_options : List[str] = ["n : Next Frame","N : Forward 10 Frames","p : Previous Frame", "P : Back 10 Frames"]
         self.get_next_frame : bool = True
         self.frame_number : int = 0
-        self.caps_or_shift_active = False
+        self.caps_or_shift_active : bool = False
 
-    def ReadAnnotations(self, video_path : str, annotation_path : str = ""):
+    def ReadAnnotations(self, video_path : str, annotation_path : str = "") -> None:
         full_video_name : str = os.path.basename(video_path)
         video_name : str = os.path.splitext(full_video_name)[0]
 
         # There's a known bug in opencv where shift + keys result in the lower value
         # in order to work around this, I had to create a separate listener to handle the 
         # shift + keystroke cases
-        listener = Listener(on_press=self.on_press, on_release=self.on_release)
+        listener : Listener = Listener(on_press=self.on_press, on_release=self.on_release)
         listener.start()
 
         if annotation_path != "":
@@ -92,6 +92,14 @@ class AnnotationValidator:
 
     def __apply_annotation(self, frame : cv2.Mat | ndarray[Any, dtype[integer[Any] | floating[Any]]],
                            annotation : Annotation):
+        """
+        Given an annotation, applies it to the given frame
+        If it object is visible i.e ("V") draw the bbox that is there
+        otherwise, display the status of the missing annotation
+        S : Skipped
+        I : Invisible
+        as well as the corresponding frame
+        """
         if (annotation.annotation_type == "V"):
             bottom_x : int = annotation.center_x-int(annotation.width/2)
             bottom_y : int = annotation.center_y-int(annotation.height/2)
@@ -107,13 +115,18 @@ class AnnotationValidator:
             org = (0, int(self.height * 0.95)) # (x, y) coordinates for bottom-left corner of the text
             return cv2.putText(frame, text, org, font, font_scale, color, thickness, cv2.LINE_AA)
 
-    def on_press(self,key):
-        # If Shift is pressed
+    def onPress(self,key):
+        """
+        Just a listener that also catches keystrokes, but this one just toggles if shift has been hit
+        """
         if key == Key.shift_l or key == Key.shift_r:
             self.caps_or_shift_active = True
     
-    def on_release(self,key):
-        # If Shift is released, or if the key is Caps Lock (which toggles state)
+    def onRelease(self,key):
+        """
+        Another event listener for key releases, just checks if shift key was just released
+        as well as if caps was hit
+        """
         if key == Key.shift_l or key == Key.shift_r:
             self.caps_or_shift_active = False
         elif key == Key.caps_lock:
