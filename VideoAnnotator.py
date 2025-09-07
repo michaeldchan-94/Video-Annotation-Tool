@@ -3,8 +3,8 @@ import sys
 from typing import Any, List
 import cv2
 from numpy import dtype, floating, integer, ndarray
-from Annotator import Annotator
-from utils import apply_infobar
+from utils.Annotator import Annotator
+from utils.utils import apply_infobar
 
 class VideoAnnotator:
     """
@@ -73,6 +73,8 @@ class VideoAnnotator:
                     apply_infobar(self.cur_frame ,self.predicted_keyboard_options,self.frame_number,self.width)
                     predicted_enable = True
                     cur_prediction : tuple[int,int,int,int] = bbox
+                else:
+                    apply_infobar(self.cur_frame ,self.normal_keyboard_options,self.frame_number,self.width)
             else:
                 apply_infobar(self.cur_frame ,self.normal_keyboard_options,self.frame_number,self.width)
 

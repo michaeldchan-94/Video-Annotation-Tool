@@ -5,13 +5,12 @@ Takes in a video file path and it's corresponding annotation file path
 If annotation path is not passed in, defaults to the same directory as the passed in video file
 """
 
-
 import os
 import sys
 from typing import Any, List
 from numpy import dtype, floating, integer, ndarray
 import cv2
-from utils import apply_infobar, get_optimal_font_scale, read_annotations,Annotation
+from utils.utils import apply_infobar, get_optimal_font_scale, read_annotations,Annotation
 from pynput.keyboard import Key, Controller, Listener
 
 class AnnotationValidator:
@@ -31,7 +30,7 @@ class AnnotationValidator:
         # There's a known bug in opencv where shift + keys result in the lower value
         # in order to work around this, I had to create a separate listener to handle the 
         # shift + keystroke cases
-        listener : Listener = Listener(on_press=self.on_press, on_release=self.on_release)
+        listener : Listener = Listener(on_press=self.onPress, on_release=self.onRelease)
         listener.start()
 
         if annotation_path != "":
@@ -91,7 +90,7 @@ class AnnotationValidator:
                 self.get_next_frame = True
 
     def __apply_annotation(self, frame : cv2.Mat | ndarray[Any, dtype[integer[Any] | floating[Any]]],
-                           annotation : Annotation):
+                           annotation : Annotation) -> None:
         """
         Given an annotation, applies it to the given frame
         If it object is visible i.e ("V") draw the bbox that is there
@@ -115,14 +114,14 @@ class AnnotationValidator:
             org = (0, int(self.height * 0.95)) # (x, y) coordinates for bottom-left corner of the text
             return cv2.putText(frame, text, org, font, font_scale, color, thickness, cv2.LINE_AA)
 
-    def onPress(self,key):
+    def onPress(self,key) -> None:
         """
         Just a listener that also catches keystrokes, but this one just toggles if shift has been hit
         """
         if key == Key.shift_l or key == Key.shift_r:
             self.caps_or_shift_active = True
     
-    def onRelease(self,key):
+    def onRelease(self,key) -> None:
         """
         Another event listener for key releases, just checks if shift key was just released
         as well as if caps was hit
