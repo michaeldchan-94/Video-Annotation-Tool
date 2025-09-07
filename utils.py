@@ -1,7 +1,6 @@
 """
-Shared code
+Useful shared code functions
 """
-
 
 from dataclasses import dataclass
 from typing import Any, List
@@ -32,23 +31,23 @@ def apply_infobar(frame : cv2.Mat | ndarray[Any, dtype[integer[Any] | floating[A
                         options : List[str],
                         frame_number : int,
                         width : int) -> None:
-        """
-        Applies the keyboard shortcuts, as well as the current frame number to the top left of the 
-        current frame
-        """
-        text = ""
-        for option in options:
-            text = text + option + " | "
+    """
+    Applies the keyboard shortcuts, as well as the current frame number to the top left of the 
+    current frame
+    """
+    text = ""
+    for option in options:
+        text = text + option + " | "
 
-        # Add the frame number now
-        str_frame : str = f'Frame : {frame_number}'
-        text += str_frame
-        font = cv2.FONT_HERSHEY_SIMPLEX
-        font_scale = get_optimal_font_scale(text,width)
-        color = (255, 255, 255) # White color (B, G, R)
-        thickness = 2
-        org = (10, 30) # (x, y) coordinates for bottom-left corner of the text
-        return cv2.putText(frame, text, org, font, font_scale, color, thickness, cv2.LINE_AA)
+    # Add the frame number now
+    str_frame : str = f'Frame : {frame_number}'
+    text += str_frame
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    font_scale = get_optimal_font_scale(text,width)
+    color = (255, 255, 255) # White color (B, G, R)
+    thickness = 2
+    org = (10, 30) # (x, y) coordinates for bottom-left corner of the text
+    return cv2.putText(frame, text, org, font, font_scale, color, thickness, cv2.LINE_AA)
 
 def read_annotations(annotation_path : str) -> List[Annotation]:
     ret = []

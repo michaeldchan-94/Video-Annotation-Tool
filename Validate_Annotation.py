@@ -12,7 +12,7 @@ from typing import Any, List
 from numpy import dtype, floating, integer, ndarray
 import cv2
 from utils import apply_infobar, get_optimal_font_scale, read_annotations,Annotation
-
+from pynput.keyboard import Key, Controller, Listener
 
 class AnnotationValidator:
     def __init__(self):
@@ -22,10 +22,17 @@ class AnnotationValidator:
         self.normal_keyboard_options : List[str] = ["n : Next Frame","N : Forward 10 Frames","p : Previous Frame", "P : Back 10 Frames"]
         self.get_next_frame : bool = True
         self.frame_number : int = 0
+        self.caps_or_shift_active = False
 
     def ReadAnnotations(self, video_path : str, annotation_path : str = ""):
         full_video_name : str = os.path.basename(video_path)
         video_name : str = os.path.splitext(full_video_name)[0]
+
+        # There's a known bug in opencv where shift + keys result in the lower value
+        # in order to work around this, I had to create a separate listener to handle the 
+        # shift + keystroke cases
+        listener = Listener(on_press=self.on_press, on_release=self.on_release)
+        listener.start()
 
         if annotation_path != "":
             # if an annotation path is provided, use that path
@@ -62,19 +69,25 @@ class AnnotationValidator:
 
             self.get_next_frame = False
             key = cv2.waitKey(0) & 0xFF
+            character = chr(key)
+            # First, I have to check if the character is a letter and if Shift/Caps Lock is active
+            if character.isalpha() and self.caps_or_shift_active:
+                if character.upper() == "N":
+                    self.frame_number += 10
+                    self.get_next_frame = True
+                    continue
+                elif character.upper() == "P":
+                    self.frame_number = max(0, self.frame_number - 10)
+                    self.get_next_frame = True
+                    continue
+            # Otherwise, handle regular cases
             if key == ord('q'):
                 break
             elif key == ord('n'):
                 self.frame_number += 1
                 self.get_next_frame = True
-            elif key == ord('N'):
-                self.frame_number += 10
-                self.get_next_frame = True
             elif key == ord('p'):
                 self.frame_number = max(0, self.frame_number - 1)
-                self.get_next_frame = True
-            elif key == ord('P'):
-                self.frame_number = max(0, self.frame_number - 10)
                 self.get_next_frame = True
 
     def __apply_annotation(self, frame : cv2.Mat | ndarray[Any, dtype[integer[Any] | floating[Any]]],
@@ -94,7 +107,18 @@ class AnnotationValidator:
             org = (0, int(self.height * 0.95)) # (x, y) coordinates for bottom-left corner of the text
             return cv2.putText(frame, text, org, font, font_scale, color, thickness, cv2.LINE_AA)
 
-
+    def on_press(self,key):
+        # If Shift is pressed
+        if key == Key.shift_l or key == Key.shift_r:
+            self.caps_or_shift_active = True
+    
+    def on_release(self,key):
+        # If Shift is released, or if the key is Caps Lock (which toggles state)
+        if key == Key.shift_l or key == Key.shift_r:
+            self.caps_or_shift_active = False
+        elif key == Key.caps_lock:
+            keyboard_controller = Controller()
+            self.caps_or_shift_active = keyboard_controller.caps_lock
 
 
 if __name__ == "__main__":
