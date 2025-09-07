@@ -40,11 +40,14 @@ class VideoAnnotator:
 
         if annotation_path != "":
             # if an annotation path is provided, use that path
-            self.annotator = Annotator(annotation_path,video_name)
+            self.annotator = Annotator(annotation_path)
         else:
             # otherwise, put it in same location as video
             directory_path = os.path.dirname(video_path)
-            self.annotator = Annotator(directory_path,video_name)
+            # Add the ".annotations" extension
+            video_name += ".annotations"
+            annotation_path = os.path.join(directory_path,video_name)
+            self.annotator = Annotator(annotation_path)
 
         cap = cv2.VideoCapture(video_path)
         while cap.isOpened():
