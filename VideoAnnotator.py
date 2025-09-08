@@ -4,7 +4,7 @@ from typing import Any, List
 import cv2
 from numpy import dtype, floating, integer, ndarray
 from utils.Annotator import Annotator
-from utils.utils import apply_infobar
+from utils.utils import apply_infobar, get_optimal_window_scaling, get_scaled_image
 
 class VideoAnnotator:
     """
@@ -27,6 +27,7 @@ class VideoAnnotator:
         self.tracking = False
         self.annotator : Annotator
         self.get_next_frame : bool = True
+        self.window_scale = 1
 
         # I could make a Kalman filter here or use like an optical flow approach for tracking, but 
         # For sake of time, let's just use an inbuilt opencv tracker here
@@ -58,11 +59,16 @@ class VideoAnnotator:
                     print("End of video.")
                     break
 
-                # Make a clean copy in case we need to go back to clean image
-                self.frame_copy = frame.copy()
                 if self.frame_number == 0:
+                    self.window_scale = get_optimal_window_scaling(frame.shape[1],frame.shape[0])
+                    print(self.window_scale)
+                    frame = get_scaled_image(frame,self.window_scale)
                     self.width = int(frame.shape[1])
                     self.height = int(frame.shape[0])
+                else:
+                    frame = get_scaled_image(frame,self.window_scale)
+                # Make a clean copy in case we need to go back to clean image
+                self.frame_copy = frame.copy()
 
             predicted_enable : bool = False
             # Copy in clean frame copy

@@ -10,7 +10,7 @@ import sys
 from typing import Any, List
 from numpy import dtype, floating, integer, ndarray
 import cv2
-from utils.utils import apply_infobar, get_optimal_font_scale, read_annotations,Annotation
+from utils.utils import apply_infobar, get_optimal_font_scale, get_optimal_window_scaling, get_scaled_image, read_annotations,Annotation
 from pynput.keyboard import Key, Controller, Listener
 
 class AnnotationValidator:
@@ -53,11 +53,16 @@ class AnnotationValidator:
                     print("End of video.")
                     break
 
-                # Make a clean copy in case we need to go back to clean image
-                self.frame_copy = frame.copy()
                 if self.frame_number == 0:
+                    self.window_scale = get_optimal_window_scaling(frame.shape[1],frame.shape[0])
+                    print(self.window_scale)
+                    frame = get_scaled_image(frame,self.window_scale)
                     self.width = int(frame.shape[1])
                     self.height = int(frame.shape[0])
+                else:
+                    frame = get_scaled_image(frame,self.window_scale)
+                # Make a clean copy in case we need to go back to clean image
+                self.frame_copy = frame.copy()
                     
                 self.cur_frame = self.frame_copy.copy()
                 self.__apply_annotation(self.cur_frame, self.annotations[self.frame_number])

@@ -7,6 +7,7 @@ from typing import Any, List
 import cv2
 from numpy import ndarray
 from numpy import dtype, floating, integer, ndarray
+from screeninfo import get_monitors
 
 @dataclass
 class Annotation:
@@ -27,6 +28,30 @@ def get_optimal_font_scale(text : str, width : int) -> int:
             return scale/10
     return 1
 
+def get_optimal_window_scaling(width : int, height: int) -> float:
+    """
+    Based on the screen size, return the scaling that will fit the image to the screen, keeping the aspect ratio
+    of the original window
+    """
+    # First, do we need to resize?
+    monitor = get_monitors()[0]
+    screen_width = monitor.width
+    screen_height = monitor.height
+    if width < screen_width and height < screen_height:
+        # no resize needed!
+        return 1
+    width_scaling = screen_width/width
+    height_scaling = screen_height/height
+    return min(width_scaling,height_scaling)
+
+
+def get_scaled_image(image : cv2.Mat | ndarray[Any, dtype[integer[Any] | floating[Any]]],
+                      scale : float) -> cv2.Mat | ndarray[Any, dtype[integer[Any] | floating[Any]]]:
+    width = int(image.shape[1] * scale)
+    height = int(image.shape[0] * scale)
+    scaled_image = cv2.resize(image, (width, height),interpolation=cv2.INTER_AREA)
+    return scaled_image
+
 def apply_infobar(frame : cv2.Mat | ndarray[Any, dtype[integer[Any] | floating[Any]]],
                         options : List[str],
                         frame_number : int,
@@ -44,7 +69,7 @@ def apply_infobar(frame : cv2.Mat | ndarray[Any, dtype[integer[Any] | floating[A
     text += str_frame
     font = cv2.FONT_HERSHEY_SIMPLEX
     font_scale = get_optimal_font_scale(text,width)
-    color = (255, 255, 255) # White color (B, G, R)
+    color = (0, 0, 0)
     thickness = 2
     org = (10, 30) # (x, y) coordinates for bottom-left corner of the text
     return cv2.putText(frame, text, org, font, font_scale, color, thickness, cv2.LINE_AA)
