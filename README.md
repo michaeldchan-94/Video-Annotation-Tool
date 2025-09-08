@@ -25,7 +25,7 @@ To run:
 ```
 pip install uv
 uv sync
-uv run VideoAnnotator.py /path/to/your/video/ /optional/path/to/output/directory/
+uv run VideoAnnotator.py /path/to/your/video/ --output /optional/path/to/output/directory/ --prompt "optional prompt here"
 ```
 
 # AnnotationValidator:
@@ -40,6 +40,6 @@ To run:
 ```
 pip install uv
 uv sync
-uv run Validate_Annotation.py /path/to/your/video/ /optional/path/to/output/annotation/file/
+uv run Validate_Annotation.py /path/to/your/video/ --output /optional/path/to/output/annotation/file/
 ```
 

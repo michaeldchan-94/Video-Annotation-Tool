@@ -5,6 +5,7 @@ Takes in a video file path and it's corresponding annotation file path
 If annotation path is not passed in, defaults to the same directory as the passed in video file
 """
 
+import argparse
 import os
 import sys
 from typing import Any, List
@@ -140,12 +141,11 @@ class AnnotationValidator:
 
 if __name__ == "__main__":
     annotation_validator = AnnotationValidator()
-    arguments = sys.argv
-    if len(arguments) < 2:
-        print("Please specify a video file to annotate!")
-        sys.exit(1)
-    video_path = arguments[1]
-    annotation_output_path = ""
-    if len(arguments) == 3:
-        annotation_output_path = arguments[2]
-    annotation_validator.ReadAnnotations(video_path,annotation_output_path)
+    video_annotator = AnnotationValidator()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('input_file', type=str, help='Path to the input video file.')
+    parser.add_argument('--output', type=str, default="",
+                    help='The path for the output annotation file')
+    args = parser.parse_args()
+    print(args)
+    video_annotator.ReadAnnotations(args.input_file,args.output)
