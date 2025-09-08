@@ -56,7 +56,6 @@ class AnnotationValidator:
 
                 if self.frame_number == 0:
                     self.window_scale = get_optimal_window_scaling(frame.shape[1],frame.shape[0])
-                    print(self.window_scale)
                     frame = get_scaled_image(frame,self.window_scale)
                     self.width = int(frame.shape[1])
                     self.height = int(frame.shape[0])
