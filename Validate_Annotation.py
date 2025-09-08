@@ -22,6 +22,7 @@ class AnnotationValidator:
         self.get_next_frame : bool = True
         self.frame_number : int = 0
         self.caps_or_shift_active : bool = False
+        self.window_scale = 1
 
     def ReadAnnotations(self, video_path : str, annotation_path : str = "") -> None:
         full_video_name : str = os.path.basename(video_path)
