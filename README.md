@@ -7,6 +7,7 @@ Inputs:
 - Path to the video
 - (Optional) Path to output directory  
     - if no output directory is given, it will default to the same directory that the given video file is in
+- (Optional) If provided, the tool uses the given prompt to predict the initial bounding box
 
 Output:
 - This will output an annotation file following the form `<video-name>.annotations`
