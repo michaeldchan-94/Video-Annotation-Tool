@@ -7,6 +7,7 @@ Inputs:
 - Path to the video
 - (Optional) Path to output directory  
     - if no output directory is given, it will default to the same directory that the given video file is in
+- (Optional) If provided, the tool uses the given prompt to predict the initial bounding box
 
 Output:
 - This will output an annotation file following the form `<video-name>.annotations`
@@ -25,7 +26,7 @@ To run:
 ```
 pip install uv
 uv sync
-uv run VideoAnnotator.py /path/to/your/video/ /optional/path/to/output/directory/
+uv run VideoAnnotator.py /path/to/your/video/ --output /optional/path/to/output/directory/ --prompt "optional prompt here"
 ```
 
 # AnnotationValidator:
@@ -40,6 +41,6 @@ To run:
 ```
 pip install uv
 uv sync
-uv run Validate_Annotation.py /path/to/your/video/ /optional/path/to/output/annotation/file/
+uv run Validate_Annotation.py /path/to/your/video/ --output /optional/path/to/output/annotation/file/
 ```
 
